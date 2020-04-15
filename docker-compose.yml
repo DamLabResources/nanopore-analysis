@@ -9,7 +9,7 @@ services:
       - ${JUPYTER_PORT}:8888
     volumes:
       - ${NANOPORE_DATA}:/home/jovyan/data
-      - ${NANOPORE_CODE}:/home/jovyan/src
+      - ${NANOPORE_CODE}:/home/jovyan/
     environment:
       GRANT_SUDO: "yes"
       JUPYTER_ENABLE_LAB: "yes"

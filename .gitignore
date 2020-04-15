@@ -1,8 +1,9 @@
-# daModels specific
+# project specific
 
 model*.hdf5
-
-
+data/
+.jupyter/
+.local/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
