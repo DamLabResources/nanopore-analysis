@@ -1,0 +1,19 @@
+version: "3.4"
+services:
+  gpu-jupyter:
+    build: 
+      context: dockers
+      dockerfile: develop.docker
+    image: nanopore/develop
+    ports:
+      - ${JUPYTER_PORT}:8888
+    volumes:
+      - ${NANOPORE_DATA}:/home/jovyan/data
+      - ${NANOPORE_CODE}:/home/jovyan/src
+    environment:
+      GRANT_SUDO: "yes"
+      JUPYTER_ENABLE_LAB: "yes"
+    # enable sudo permissions
+    user:
+      "root"
+    restart: always

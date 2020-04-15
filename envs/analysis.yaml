@@ -1,0 +1,13 @@
+# conda environments needed for the workflow should be stored here.
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - pandas
+  - numpy
+  - matplotlib
+  - seaborn
+  #- nbconvert
+  #- jupyter_client
+  - scikit-learn
+  - statsmodels

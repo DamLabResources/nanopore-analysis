@@ -1,0 +1,10 @@
+# conda environments needed for the workflow should be stored here.
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - bioconda::samtools
+  - bioconda::bwa
+  - bioconda::last
+  - bioconda::bedtools
+  - bioconda::emboss
