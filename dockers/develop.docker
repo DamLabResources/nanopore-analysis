@@ -429,11 +429,13 @@ RUN conda install -c conda-forge jupyter_contrib_nbextensions && \
 RUN jupyter labextension install @ijmbarr/jupyterlab_spellchecker
 RUN jupyter labextension install @jupyterlab/git
 RUN jupyter labextension install @jupyterlab/fasta-extension
+RUN jupyter lab build
 
-RUN conda install --quiet --yes \
+RUN conda install -c conda-forge -c bioconda --quiet --yes \
     'biopython=1.76' \
     'pandas=1.*' \
-    'seaborn=0.10.*' 
+    'seaborn=0.10.*' \
+    'snakemake=5.14.*'
 
 RUN curl -fsSL https://get.docker.com -o get-docker.sh
 RUN sh get-docker.sh

@@ -3,12 +3,42 @@
 [![Snakemake](https://img.shields.io/badge/snakemake-≥3.12.0-brightgreen.svg)](https://snakemake.bitbucket.io)
 [![Build Status](https://travis-ci.org/snakemake-workflows/crispr-nanopore-analysis.svg?branch=master)](https://travis-ci.org/snakemake-workflows/crispr-nanopore-analysis)
 
-This is the template for a new Snakemake workflow. Replace this text with a comprehensive description covering the purpose and domain.
-Insert your code into the respective folders, i.e. `scripts`, `rules`, and `envs`. Define the entry point of the workflow in the `Snakefile` and the main configuration in the `config.yaml` file.
-
+This is the base repository for Nanopore analyses from the Dampier lab. It includes `docker` containers, conda environments, analysis scripts, and results notebooks. All data is kept separate place to avoid overloading git. 
 ## Authors
 
 * Will Dampier (@judowill)
+
+## Start-up
+
+Create a new [environment file](https://docs.docker.com/compose/env-file/) that defines full paths to this directory, to the formatted data directory, and the port you would like Jupyter to listen to. Here is mine:
+
+     JUPYTER_PORT=8888
+     NANOPORE_DATA=/deepdata/nanopore
+     NANOPORE_CODE=/home/will/DamLabResources/nanopore-projects
+
+Once properly set and saved in as `.env` in the directory. You can use:
+
+     docker-compose build
+     
+To fully create this environment. Then use:
+
+     docker-compose up -d
+     
+To create a running Jupyter lab environment setup at `JUPYTER_PORT`.
+
+If you are intending to run with the GPU, `docker-compose` currently does not support starting nvidia-containers. If you need GPU capacity you'll need to use the original docker commands.
+
+`docker run nanopore/develop -p 8888:8888 -v /deepdata/nanopore:/home/jovyan/data -v /home/will/DamLabResources/nanopore-projects:/home/jovyan/`
+
+## Dev Environment
+
+Development is setup as a fully functional data-science notebook with GPU libraries already installed as well as most scientific/ML packages pre-installed. I have also loaded `docker` and `singularity` so you should be able to run singularity snakemake runs.  
+     
+It also has git installed as well as jupyterlab-git ... but that doesn't seem to be working right now.
+
+
+More stuff to follow.
+
 
 ## Usage
 
