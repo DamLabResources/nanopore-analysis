@@ -427,7 +427,9 @@ RUN conda install -c conda-forge jupyter_contrib_nbextensions && \
   conda install -c conda-forge jupyter_nbextensions_configurator && \
   jupyter nbextension enable codefolding/main
 RUN jupyter labextension install @ijmbarr/jupyterlab_spellchecker
-RUN jupyter labextension install @jupyterlab/git
+RUN pip install -U jupyterlab-git && \
+  jupyter labextension install @jupyterlab/git && \
+  jupyter serverextension enable --py jupyterlab_git --sys-prefix
 RUN jupyter labextension install @jupyterlab/fasta-extension
 RUN jupyter lab build
 
