@@ -1,4 +1,4 @@
-# Snakemake workflow: CRISPR nanopore analysis
+# Snakemake workflow: Nanopore analysis scripts
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥3.12.0-brightgreen.svg)](https://snakemake.bitbucket.io)
 [![Build Status](https://travis-ci.org/snakemake-workflows/crispr-nanopore-analysis.svg?branch=master)](https://travis-ci.org/snakemake-workflows/crispr-nanopore-analysis)
