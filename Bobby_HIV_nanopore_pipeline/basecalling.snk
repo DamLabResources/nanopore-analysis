@@ -1,0 +1,22 @@
+# Snake file number 1 
+
+rule guppy_basecall:
+    input:
+        "test/reads"
+    output:
+        fastq = "test/guppy/test.fastq",
+    params:
+        directory("test/guppy"),
+    singularity:
+        "docker://genomicpariscentre/guppy"
+    threads: 5
+    shell:
+        """
+        guppy_basecaller -s {params} -r -i {input} -c dna_r9.4.1_450bps_hac.cfg
+        
+        # guppy_basecaller only creates 1 fastq containing all fastq files from fast5s (1 fast5 = 1 fastq)
+        # even when run with fast5, it results in a fastq w/ one sequence
+        
+        # merge resulting fastqs
+        mv {params}/*fastq {params}/test.fastq
+        """

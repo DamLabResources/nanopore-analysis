@@ -1,0 +1,38 @@
+# Snake file number 5
+
+rule medaka:
+    input:
+        draft = "test/guppy/assembly/assembly.fa",
+        basecalls = "test/guppy/test.fastq",
+    output:
+        dir = directory("test/guppy/assembly/medaka"),
+        done = touch("complete.done")
+#    log:
+#        "{dir}/medaka{suffix}.log"
+    threads: 8
+    resources:
+        # NOTE: currently we will only use at most a single GPU
+        gpu = 0
+    singularity:
+        "docker://nanozoo/medaka"
+    shell:
+        """
+        #Check to see if a GPU is being used
+        if [ "{resources.gpu}" != "0" ];then
+            GPU= "cuda:0"
+            echo "Runnning on host $HOSTNAME with GPU $GPU"
+        else
+            GPU=""
+            echo "Runnning on host $HOSTNAME without GPU."
+        fi
+
+        CUDA_VISIBLE_DEVICES=$GPU 
+        medaka_consensus -i {input.basecalls} -d {input.draft} -t {threads}
+        sleep 5
+        
+        # rm large intermediates
+        rm medaka/calls_to_draft.bam* medaka/consensus_probs.hdf
+        
+        # Mv to proper folder
+        mv medaka {output.dir}
+        """

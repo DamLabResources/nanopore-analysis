@@ -1,0 +1,8 @@
+name: medaka
+channels:
+ - miniconda
+ - anaconda
+ - conda-forge
+dependencies:
+ - python=3.6
+ - tensorflow-gpu

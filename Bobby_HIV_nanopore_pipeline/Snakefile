@@ -1,0 +1,19 @@
+
+configfile: "config.yaml"
+
+rule all:
+    input: "complete.done"
+
+# nanopore consensus pipeline
+include: "basecalling.snk"
+include: "assembly.snk"
+# include: "racon.snk"
+include: "consensus.snk"
+# include: "consensus_evaluation.snk"
+
+# medaka feature generation pipeline
+# include: "train_medaka.snk"
+
+# medaka training pipeline
+# include: "basecalling.snk"
+# include: "alignment.snk"

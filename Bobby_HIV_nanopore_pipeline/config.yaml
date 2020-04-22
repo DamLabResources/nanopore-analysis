@@ -1,0 +1,103 @@
+# Master katuali configuration file template
+# ------------------------------------------
+#
+# Having copied this file with the command:
+#     katuali_config my_config.yaml
+# it will be necessary to amend the `DATA:` dictionary in the first section below
+# to define the dataset to be processed.
+#
+# The second section containing software locations should also be checked and
+# amended if necessary.
+#
+# To run the predefined workflows: `all_fast_assm_polish`, `all_standard_assm_polish`
+# `all_medaka_train_features` starting from fast5 input,
+# nothing else need be done. If starting a workflow from basecall data
+# (https://nanoporetech.github.io/katuali/examples.html#starting-from-existing-basecalls),
+# basecalls should be placed under the basecalling folder as defined in the pipelines config section.
+# For the all_fast_assm_polish pipeline for example, basecalls should be placed in 
+# "{DATA}/guppy/basecalls.fasta"
+
+
+####################
+# Input data options
+
+# .fast5 files can be under top-level folders named by a RUNID (these need not
+# be actual run UUIDs). Fast5s should be in RUNID/reads.  The keys within this
+# data dictionary are RUNIDs.
+#
+# REFERENCE is required for the medaka training workflows, and in general any
+# time reads need to be aligned to a reference (e.g. for for subsampling)
+#   
+# MEDAKA_TRAIN_REGIONS and MEDAKA_EVAL_REGIONS define regions for
+# training and evaluation within the medaka training workflow, and are
+# otherwise not used. 
+#
+# GENOME_SIZE is required only in workflows using the canu or flye assembler.
+# When a reference file is given, GENOME_SIZE will be calculated from it in
+# the case that a value is not directly specified.
+#
+# In the example below we train from the "minion" run using "ecoli" and "yeast"
+# contigs in the reference and evaluate on the "gridion" run using the contigs
+# "ecoli", "yeast" and "na12878_chr21" in the reference.
+ 
+base_dir: 'HIV_nanopore_pipeline'
+file_dir: 'test'
+reference: 'ref.fasta'
+
+# What to do for testing
+MEDAKA_TRAIN_REGIONS: ['ecoli', 'yeast']
+MEDAKA_EVAL_REGIONS: []
+        
+#############################
+# Options for medaka training
+
+# This section can be ignored if not running a medaka training workflow
+
+# Read depths at which to create assemblies for training, this should
+# span the range of depths at which the model is to be used
+DEPTHS:
+    [25, 50, 75, 100, 125, 150, 175, 200]
+
+# If any medaka feature files are missing (e.g. due to insufficient coverage
+# for some runs / contigs) the medaka training step will not find all the files
+# it expects and will not run. To train on the feauture files which were
+# created, set this flag to true (after having already created the features
+# with the flag set to false) 
+USE_ONLY_EXISTING_MEDAKA_FEAT:
+    false
+
+# Run multiple training replicates - output will be in medaka_train_{key},
+# values should be a key of the PIPELINES dictionary in this file. In simple
+# cases this allows running technical replicates of the training, but also
+# allows the pipeline to be changed to for example create features in a
+# different manner. For the latter change the value component to an alternative
+# user defined pipeline.
+MEDAKA_TRAIN_REPLICATES:
+    "_rep_1": "all_medaka_feat" 
+    "_rep_2": "all_medaka_feat"
+    "_rep_3": "all_medaka_feat"
+
+# Evaluation of trained models, entries in this list should be keys
+# of MEDAKA_OPTS, the values of which need to specify the path of the
+# trained model using the `-m option`.
+MEDAKA_EVAL_SUFFIXES:
+    ["_rep_1_best_val", "_rep_2_best_val", "_rep_3_best_val"]
+MEDAKA_OPTS:
+    "": "-m r941_min_high_g344"
+    "_hac": "-m r941_min_high_g344"
+    "_hac_prom": "-m r941_prom_high_g344"
+    "_fast": "-m r941_min_fast_g303"
+    "_fast_prom": "-m r941_prom_fast_g303"
+    "_rep_1_best_val": "-m medaka_train_rep_1/model.best.val_cat_acc.hdf5"
+    "_rep_2_best_val": "-m medaka_train_rep_2/model.best.val_cat_acc.hdf5"
+    "_rep_3_best_val": "-m medaka_train_rep_3/model.best.val_cat_acc.hdf5"
+
+# Medaka training features
+MEDAKA_TRAIN_FEAT_OPTS:
+    "": "--chunk_len 1000 --chunk_ovlp 0"
+
+MEDAKA_TRAIN_OPTS:
+    "_rep_1": "--mini_epochs 5 --validation_split 0.10"
+    "_rep_2": "--mini_epochs 5 --validation_split 0.10"
+    "_rep_3": "--mini_epochs 5 --validation_split 0.10"
+

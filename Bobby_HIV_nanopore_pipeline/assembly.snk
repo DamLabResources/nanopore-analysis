@@ -1,0 +1,33 @@
+# Snake file number 2
+
+# Unused rules from katuali
+# ref_as_assembly_region
+# ref_as_assembly
+
+# Originally at end of assemble rule
+# keep a link of basecalls with the consensus
+#ln -s $PWD/{input} $PWD/{params[output_dir]}/basecalls.fasta
+
+container: "docker://willrowe/pomoxis"
+
+rule assemble:
+    input:
+        fastq = "test/guppy/test.fastq",
+    output:
+        assembly = "test/guppy/assembly/assembly.fa",
+    threads: 8
+    resources:
+        gpu = 0
+    singularity:
+        "docker://willrowe/pomoxis"
+    shell:
+        """
+        mini_assemble -i {input} -o assembly -t {threads} -p assm -m 0
+        
+        echo $(ls)
+        
+        # move directory to guppy and rename output
+        mv assembly/* test/guppy/assembly/
+        mv test/guppy/assembly/assm_final.fa {output}
+        rm -rf assembly
+        """
