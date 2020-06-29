@@ -2,21 +2,20 @@
 
 rule guppy_basecall:
     input:
-        "test/reads"
+        "/data/nanopore/nanopore/Mele01/fast5_pass/{genomes}"
     output:
-        fastq = "test/guppy/test.fastq",
+        fastq = "medaka_pipeline_outputs/guppy/{genomes}.fastq",
     params:
-        directory("test/guppy"),
+        directory("medaka_pipeline_outputs/guppy"),
     singularity:
-        "docker://genomicpariscentre/guppy"
+        "docker://genomicpariscentre/guppy-gpu"
+    resources:
+        gpu = 1
     threads: 5
     shell:
         """
-        guppy_basecaller -s {params} -r -i {input} -c dna_r9.4.1_450bps_hac.cfg
-        
-        # guppy_basecaller only creates 1 fastq containing all fastq files from fast5s (1 fast5 = 1 fastq)
-        # even when run with fast5, it results in a fastq w/ one sequence
-        
+        guppy_basecaller -s {params} -r -i {input} -c dna_r9.4.1_450bps_hac.cfg -x cuda:0
+
         # merge resulting fastqs
-        mv {params}/*fastq {params}/test.fastq
+        cat {params}/*fastq > {output}
         """

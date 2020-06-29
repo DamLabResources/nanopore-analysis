@@ -1,0 +1,56 @@
+# rule combine_hiv_genome_bams:
+#    input:
+#        calls2draft = expand("medaka_pipeline_outputs/guppy/assembly/racon/align/{genomes}_calls2draft.bam", genomes = 'jlat_106'),
+#        truth2draft = expand("medaka_pipeline_outputs/guppy/assembly/racon/align/{genomes}_truth2draft.bam", genomes = 'jlat_106')
+#     output:
+#         calls2draft = "medaka_pipeline_outputs/guppy/assembly/racon/align/combined_calls2draft.bam"
+#         truth2draft = "medaka_pipeline_outputs/guppy/assembly/racon/align/combined_truth2draft.bam"
+
+rule medaka_feature_creation:
+    """
+    Modify me for mulitple HIV-1 genomes...
+    """
+    
+    input:
+        calls2draft = expand("medaka_pipeline_outputs/guppy/assembly/racon/align/{genomes}_calls2draft.bam", genomes = 'jlat_106'),
+        truth2draft = expand("medaka_pipeline_outputs/guppy/assembly/racon/align/{genomes}_truth2draft.bam", genomes = 'jlat_106')
+    output:
+        features = "hiv_train_features.hdf5",
+    threads: 8
+    resources:
+        # NOTE: currently we will only use at most a single GPU
+        gpu = 0
+    params:
+        refname    = "jlat_106",
+        train_end  = 39401,
+        
+        batchsize  = 16,
+        chunk_len  = 100,
+        chunk_ovlp = 90,
+    singularity:
+        "docker://nanozoo/medaka"
+    shell:
+        """
+        medaka features {input.calls2draft} {output} --truth {input.truth2draft} --threads {threads} --region {params.refname}:0-{params.train_end} --batch_size {params.batchsize} --chunk_len {params.chunk_len} --chunk_ovlp {params.chunk_ovlp}
+        """
+        
+rule medaka_train:
+    input:
+        features = "hiv_train_features.hdf5",
+    output:
+        weights = "hiv_medaka_weights.hdf5"
+    threads: 8
+    resources:
+        # NOTE: currently we will only use at most a single GPU
+        gpu = 0
+    params:
+        epochs     = 10,
+        train_name = "weights",
+    singularity:
+        "docker://nanozoo/medaka"
+    shell:
+        """
+        medaka train {input.features} --train_name {params.train_name} --epochs {params.epochs}
+        
+        mv {params.train_name}/model.best.val_cat_acc.hdf5 {params.train_name}/{output}
+        """

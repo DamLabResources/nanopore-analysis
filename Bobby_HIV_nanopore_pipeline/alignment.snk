@@ -1,0 +1,40 @@
+rule align_basecalls_to_draft:
+    input:
+        basecalls = "medaka_pipeline_outputs/guppy/{genomes}.fastq",
+        draft     = "medaka_pipeline_outputs/guppy/assembly/racon/{genomes}_polished_assembly.fa",
+    output:
+        calls2draft = "medaka_pipeline_outputs/guppy/assembly/racon/align/{genomes}_calls2draft.bam",
+    params:
+        directory("medaka_pipeline_outputs/guppy/assembly/racon/align/")
+    threads: 8
+    resources:
+        gpu = 0
+    singularity:
+        "docker://nanozoo/pomoxis"
+    shell:
+        """
+        mini_align -P -m -i {input.basecalls} -r {input.draft} -p calls2draft -t 8
+        
+        mv calls2draft.bam* {params}
+        """
+        
+rule align_reference_to_draft:
+    input:
+        ref   = "refs/{genomes}.fasta",
+        draft = "medaka_pipeline_outputs/guppy/assembly/racon/{genomes}_polished_assembly.fa",
+    output:
+        truth2draft = "medaka_pipeline_outputs/guppy/assembly/racon/align/{genomes}_truth2draft.bam",
+    threads: 8
+    resources:
+        gpu = 0
+    params:
+        chunk_size = 1000,
+        align_dir  = directory("medaka_pipeline_outputs/guppy/assembly/racon/align/")
+    singularity:
+        "docker://nanozoo/pomoxis"
+    shell:
+        """
+        mini_align -c {params.chunk_size} -P -m -i {input.ref} -r {input.draft} -p truth2draft -t 8
+        
+        mv truth2draft* {params.align_dir}
+        """

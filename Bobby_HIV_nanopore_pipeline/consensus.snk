@@ -1,18 +1,17 @@
-# Snake file number 5
+# START HERE
 
 rule medaka:
     input:
-        draft = "test/guppy/assembly/assembly.fa",
-        basecalls = "test/guppy/test.fastq",
+        draft     = "medaka_pipeline_outputs/guppy/assembly/racon/{genomes}_polished_assembly.fa",
+        basecalls = "medaka_pipeline_outputs/guppy/{genomes}.fastq",
     output:
-        dir = directory("test/guppy/assembly/medaka"),
-        done = touch("complete.done")
-#    log:
-#        "{dir}/medaka{suffix}.log"
+        consensus = "medaka_pipeline_outputs/guppy/assembly/racon/medaka/{genomes}_consensus.fa",
     threads: 8
     resources:
         # NOTE: currently we will only use at most a single GPU
-        gpu = 0
+        gpu = 1
+    params:
+        weights = "training/model.best.val_cat_acc.hdf5",
     singularity:
         "docker://nanozoo/medaka"
     shell:
@@ -27,7 +26,9 @@ rule medaka:
         fi
 
         CUDA_VISIBLE_DEVICES=$GPU 
-        medaka_consensus -i {input.basecalls} -d {input.draft} -t {threads}
+        
+        # If no weights, use r941_min_high_g340_rle
+        medaka_consensus -i {input.basecalls} -d {input.draft} -t {threads} -m {params.weights}
         sleep 5
         
         # rm large intermediates
@@ -35,4 +36,6 @@ rule medaka:
         
         # Mv to proper folder
         mv medaka {output.dir}
+        
+        touch {output.done}
         """
